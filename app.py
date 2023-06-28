@@ -3,9 +3,6 @@ from rembg import remove
 from PIL import Image
 import numpy as np
 import cv2
-from io import BytesIO
-
-background_removed_image = None
 
 def perform_perspective_correction(image):
     img = np.array(image)
@@ -33,8 +30,6 @@ def perform_perspective_correction(image):
     return corrected_image
     
 def main():
-    global background_removed_image
-
     st.title("Image Background Remover")
 
     uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
@@ -45,14 +40,12 @@ def main():
     if st.button("Remove Background"):
         with st.spinner("Removing background..."):
             if uploaded_image is not None:
-                byte_image = uploaded_image.read()
-                background_removed_image = remove(byte_image)
-                background_removed_image = Image.open(BytesIO(background_removed_image)).convert("RGBA")
-                st.image(background_removed_image, caption="Background Removed", use_column_width=True)
+                output_image = remove(image)
+                st.image(output_image, caption="Background Removed", use_column_width=True)
 
                 if st.button("Perspective Correction"):
                     with st.spinner("Performing perspective correction..."):
-                        corrected_image = perform_perspective_correction(background_removed_image)
+                        corrected_image = perform_perspective_correction(output_image)
                         st.image(corrected_image, caption="Perspective Corrected", use_column_width=True)
             else:
                 st.warning("Please upload an image first.")
