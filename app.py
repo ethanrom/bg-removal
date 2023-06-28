@@ -30,13 +30,13 @@ def tab2():
 
     if uploaded_image is not None:
         image = Image.open(uploaded_image)
-        st.image(image, caption="Original Image", use_column_width=True)
+        st.image(image, caption="Original Image", width=500)
 
     if st.button("Remove Background"):
         with st.spinner("Removing background..."):
             if uploaded_image is not None:
                 output_image = remove(image)
-                st.image(output_image, caption="Background Removed", use_column_width=True)
+                st.image(output_image, caption="Background Removed", width=500)
 
 def tab3():
     st.header("Image Perspective Correction")
@@ -46,13 +46,14 @@ def tab3():
 
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
+        st.image(image, caption="Original Image", width=500)
         image_np = np.array(image)
 
     if st.button("Correct Perspective"):
         with st.spinner("Correcting Perspective..."):
             if uploaded_file is not None:        
                 corrected_image = perspective_correction(image_np)
-                st.image([image, corrected_image], caption=["Original Image", "Corrected Image"], width=300)
+                st.image(corrected_image, caption="Corrected Image", width=500)
 
 
 def preprocess_image(image):
