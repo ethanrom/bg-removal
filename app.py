@@ -1,6 +1,7 @@
 import streamlit as st
 from rembg import remove
 from PIL import Image
+import cv2
 
 def perform_perspective_correction(image):
     img = np.array(image)
