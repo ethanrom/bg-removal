@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 
 def tab1():
-    st.header("Real Estate Listings Chatbot")  
+    st.header("Image Background Remover")  
     col1, col2 = st.columns([1, 2])
     with col1:
         st.image("image.jpg", use_column_width=True)
