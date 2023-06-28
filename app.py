@@ -1,8 +1,8 @@
 import streamlit as st
 from rembg import remove
-from PIL import Image
+from PIL import ImageOps, ImageEnhance, Image
 from streamlit_option_menu import option_menu
-from markup import real_estate_app, real_estate_app_hf
+from markup import real_estate_app, real_estate_app_hf, sliders_intro
 
 
 import numpy as np
@@ -25,18 +25,77 @@ def tab1():
 
 def tab2():
     st.header("Image Background Remover")
+    st.markdown(sliders_intro(),unsafe_allow_html=True)
 
     uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
 
     if uploaded_image is not None:
         image = Image.open(uploaded_image)
-        st.image(image, caption="Original Image", width=500)
 
-    if st.button("Remove Background"):
-        with st.spinner("Removing background..."):
-            if uploaded_image is not None:
-                output_image = remove(image)
-                st.image(output_image, caption="Background Removed", width=500)
+        col1, col2 = st.columns([2,1])
+
+        with col1:
+            st.image(image, caption="Original Image", use_column_width=True)
+            image = preprocess_image_1(image)
+
+        with col2:
+            st.subheader("RGB Adjustments")
+            with st.expander("Expand"):
+                r_min, r_max = st.slider("Red", min_value=0, max_value=255, value=(0, 255), step=1)
+                g_min, g_max = st.slider("Green", min_value=0, max_value=255, value=(0, 255), step=1)
+                b_min, b_max = st.slider("Blue", min_value=0, max_value=255, value=(0, 255), step=1)
+
+                adjusted_image = adjust_rgb(image, r_min, r_max, g_min, g_max, b_min, b_max)
+                st.image(adjusted_image, caption="Adjusted Image", use_column_width=True)
+
+            st.subheader("Curves Adjustment")
+            with st.expander("Expand"):
+                r_curve = st.slider("Red Curve", min_value=0.0, max_value=1.0, value=1.0, step=0.05)
+                g_curve = st.slider("Green Curve", min_value=0.0, max_value=1.0, value=1.0, step=0.05)
+                b_curve = st.slider("Blue Curve", min_value=0.0, max_value=1.0, value=1.0, step=0.05)
+
+                adjusted_image = adjust_curves(adjusted_image, r_curve, g_curve, b_curve)
+                st.image(adjusted_image, caption="Adjusted Image", use_column_width=True)
+
+            st.subheader("Masking")
+            with st.expander("Expand"):
+                threshold = st.slider("Threshold", min_value=0, max_value=255, value=128, step=1)
+
+                adjusted_image = apply_masking(adjusted_image, threshold)
+                st.image(adjusted_image, caption="Adjusted Image", use_column_width=True)
+
+        with col1:
+            if st.button("Remove Background"):
+                with st.spinner("Removing background..."):
+                    output_image = remove(adjusted_image)
+                    st.image(output_image, caption="Background Removed", use_column_width=True)
+
+def preprocess_image_1(image):
+    if image.mode != "RGBA":
+        image = image.convert("RGBA")
+    return image
+
+def adjust_rgb(image, r_min, r_max, g_min, g_max, b_min, b_max):
+    r, g, b, a = image.split()
+    r = ImageOps.autocontrast(r.point(lambda p: int(p * (r_max - r_min) / 255 + r_min)))
+    g = ImageOps.autocontrast(g.point(lambda p: int(p * (g_max - g_min) / 255 + g_min)))
+    b = ImageOps.autocontrast(b.point(lambda p: int(p * (b_max - b_min) / 255 + b_min)))
+    return Image.merge("RGBA", (r, g, b, a))
+
+def adjust_curves(image, r_curve, g_curve, b_curve):
+    r, g, b, a = image.split()
+    enhancer_r = ImageEnhance.Brightness(r).enhance(r_curve)
+    enhancer_g = ImageEnhance.Brightness(g).enhance(g_curve)
+    enhancer_b = ImageEnhance.Brightness(b).enhance(b_curve)
+    return Image.merge("RGBA", (enhancer_r, enhancer_g, enhancer_b, a))
+
+def apply_masking(image, threshold):
+    r, g, b, a = image.split()
+    mask = a.point(lambda p: 255 if p > threshold else 0)
+    return Image.merge("RGBA", (r, g, b, mask))
+
+
+
 
 def tab3():
     st.header("Image Perspective Correction")
