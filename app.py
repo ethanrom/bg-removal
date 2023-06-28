@@ -3,6 +3,7 @@ from rembg import remove
 from PIL import Image
 import numpy as np
 import cv2
+from io import BytesIO
 
 background_removed_image = None
 
@@ -44,7 +45,9 @@ def main():
     if st.button("Remove Background"):
         with st.spinner("Removing background..."):
             if uploaded_image is not None:
-                background_removed_image = remove(image)
+                byte_image = uploaded_image.read()
+                background_removed_image = remove(byte_image)
+                background_removed_image = Image.open(BytesIO(background_removed_image)).convert("RGBA")
                 st.image(background_removed_image, caption="Background Removed", use_column_width=True)
 
                 if st.button("Perspective Correction"):
