@@ -8,7 +8,6 @@ from perspective_correction import perspective_correction, perspective_correctio
 import numpy as np
 import cv2
 
-
 def tab1():
     st.header("Image Background Remover")  
     col1, col2 = st.columns([1, 2])
