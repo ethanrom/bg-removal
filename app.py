@@ -8,6 +8,7 @@ from perspective_correction import perspective_correction, perspective_correctio
 import numpy as np
 import cv2
 
+
 def tab1():
     st.header("Image Background Remover")  
     col1, col2 = st.columns([1, 2])
@@ -25,18 +26,23 @@ def tab1():
 
 def tab2():
     st.header("Image Background Remover")
-    st.markdown(sliders_intro(),unsafe_allow_html=True)
+    st.markdown(sliders_intro(), unsafe_allow_html=True)
 
-    uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
+    upload_option = st.radio("Upload Option", ("Single Image", "Multiple Images"))
 
-    if uploaded_image is not None:
-        image = Image.open(uploaded_image)
+    if upload_option == "Single Image":
+        uploaded_images = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
+        images = [Image.open(uploaded_images)] if uploaded_images else []
+    else:
+        uploaded_images = st.file_uploader("Upload multiple images", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+        images = [Image.open(image) for image in uploaded_images] if uploaded_images else []
 
-        col1, col2 = st.columns([2,1])
+    if images:
+        col1, col2 = st.columns([2, 1])
 
         with col1:
-            st.image(image, caption="Original Image", use_column_width=True)
-            image = preprocess_image_1(image)
+            st.image(images[0], caption="Original Image", use_column_width=True)
+            image = preprocess_image_1(images[0])
 
         with col2:
             st.subheader("RGB Adjustments")
@@ -67,9 +73,18 @@ def tab2():
         with col1:
             if st.button("Remove Background"):
                 with st.spinner("Removing background..."):
-                    output_image = remove(adjusted_image)
-                    st.image(output_image, caption="Background Removed", use_column_width=True)
-
+                    output_images = []
+                    for image in images:
+                        processed_image = preprocess_image_1(image)
+                        adjusted_image = adjust_rgb(processed_image, r_min, r_max, g_min, g_max, b_min, b_max)
+                        adjusted_image = adjust_curves(adjusted_image, r_curve, g_curve, b_curve)
+                        adjusted_image = apply_masking(adjusted_image, threshold)
+                        output_images.append(remove(adjusted_image))
+                    
+                    with st.expander("Background Removed Images"):
+                        for i in range(len(output_images)):
+                            st.image(output_images[i], caption=f"Background Removed Image {i + 1}", use_column_width=True)
+                        
 def preprocess_image_1(image):
     if image.mode != "RGBA":
         image = image.convert("RGBA")
@@ -93,6 +108,9 @@ def apply_masking(image, threshold):
     r, g, b, a = image.split()
     mask = a.point(lambda p: 255 if p > threshold else 0)
     return Image.merge("RGBA", (r, g, b, mask))
+
+
+
 
 def tab3():
     st.header("Image Perspective Correction")
