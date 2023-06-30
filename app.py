@@ -94,9 +94,6 @@ def apply_masking(image, threshold):
     mask = a.point(lambda p: 255 if p > threshold else 0)
     return Image.merge("RGBA", (r, g, b, mask))
 
-
-
-
 def tab3():
     st.header("Image Perspective Correction")
     st.write("Upload a transparent PNG image which you have removed the background using the previous tab.")
