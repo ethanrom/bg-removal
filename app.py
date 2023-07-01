@@ -5,7 +5,6 @@ from streamlit_option_menu import option_menu
 from markup import real_estate_app, real_estate_app_hf, sliders_intro, perspective_intro, manual_bg_intro
 from perspective_correction import perspective_correction, perspective_correction2
 from streamlit_drawable_canvas import st_canvas
-
 import numpy as np
 import cv2
 
