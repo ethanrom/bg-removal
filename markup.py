@@ -29,6 +29,7 @@ def real_estate_app_hf():
     <p><b>Update 1</b> RGB adjustment sliders for image preprocessing</p>
     <p><b>Update 2</b> Addional options for perspective correction</p>
     <p><b>Update 3</b> Multiple image support</p>
+    <p><b>Update 4</b> Manual background removal</p>
     </div>
     """
 
@@ -62,4 +63,9 @@ def perspective_intro():
     These parameters affect the number and quality of lines detected, which in turn can impact the accuracy of the perspective correction. 
     Adjusting these values allows fine-tuning the perspective correction process based on the specific characteristics of the input image. 
     However, it is important to note that changing these values requires some experimentation to achieve the desired results, and it is recommended to find the optimal values through trial and error.
+    """
+
+def manual_bg_intro():
+    return """
+    Click on the canvas and select four or more points, starting from any one corner of the slab and proceeding in order in any direction. The background will be removed using the selected points.
     """

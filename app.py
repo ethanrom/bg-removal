@@ -2,11 +2,13 @@ import streamlit as st
 from rembg import remove
 from PIL import ImageOps, ImageEnhance, Image
 from streamlit_option_menu import option_menu
-from markup import real_estate_app, real_estate_app_hf, sliders_intro, perspective_intro
+from markup import real_estate_app, real_estate_app_hf, sliders_intro, perspective_intro, manual_bg_intro
 from perspective_correction import perspective_correction, perspective_correction2
+from streamlit_drawable_canvas import st_canvas
 
 import numpy as np
 import cv2
+
 
 def tab1():
     st.header("Image Background Remover")  
@@ -108,10 +110,72 @@ def apply_masking(image, threshold):
     mask = a.point(lambda p: 255 if p > threshold else 0)
     return Image.merge("RGBA", (r, g, b, mask))
 
-
-
+def remove_background(image, points):
+    mask = np.zeros(image.shape[:2], dtype=np.uint8)
+    points = np.array(points, dtype=np.int32)
+    points = points.reshape((-1, 1, 2))
+    cv2.fillPoly(mask, [points], (255))
+    result = np.dstack([image, mask])
+    
+    return result
 
 def tab3():
+    st.header("Manual Background Removal")
+    st.markdown(manual_bg_intro(), unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+    
+    if uploaded_file is not None:
+
+        col1, col2 = st.columns([2,1])
+        with col1:
+            image = Image.open(uploaded_file)
+            max_image_size = 700
+            if max(image.size) > max_image_size:
+                image.thumbnail((max_image_size, max_image_size), Image.ANTIALIAS)
+            st.image(image, caption="Original Image")
+            image_width, image_height = image.size
+
+        with col2:
+            drawing_mode = "point"
+            stroke_width = st.slider("Stroke width: ", 1, 25, 3)
+            point_display_radius = st.slider("Point display radius: ", 1, 25, 3)
+            realtime_update = st.checkbox("Update in realtime", True)
+
+        with col1:
+            st.subheader("Select Points on the Canvas")
+            canvas_result = st_canvas(
+                fill_color="rgba(255, 165, 0, 0.3)",
+                stroke_width=stroke_width,
+                background_image=image,
+                update_streamlit=realtime_update,
+                height=image_height,
+                width=image_width,
+                drawing_mode=drawing_mode,
+                point_display_radius=point_display_radius if drawing_mode == 'point' else 0,
+                key="canvas",
+            )
+
+        if st.button("Remove Background"):
+            if canvas_result.json_data is not None:
+                points = []
+                for obj in canvas_result.json_data["objects"]:
+                    if "type" in obj and obj["type"] == "circle":
+                        x = obj["left"]
+                        y = obj["top"]
+                        points.append((x, y))
+
+                img_array = np.array(image)
+                result = remove_background(img_array, points)
+
+                result_image = Image.fromarray(result)
+
+                transparent_bg_result = result_image.convert("RGBA")
+                file_path = "background_removed.png"
+                transparent_bg_result.save(file_path, format="PNG")
+                st.image(transparent_bg_result, caption="Background Removed Image")    
+
+
+def tab4():
     st.header("Image Perspective Correction")
     st.write("Upload a transparent PNG image which you have removed the background using the previous tab.")
     st.markdown(perspective_intro(),unsafe_allow_html=True)
@@ -157,7 +221,7 @@ def tab3():
                 
 def main():
     st.set_page_config(page_title="Background Removal Demo", page_icon=":memo:", layout="wide")
-    tabs = ["Intro", "Remove Background", "perspective correction"]
+    tabs = ["Intro", "AI Background Removal", "Manual Background Removal", "Perspective Correction"]
 
     with st.sidebar:
 
@@ -165,8 +229,9 @@ def main():
 
     tab_functions = {
     "Intro": tab1,
-    "Remove Background": tab2,
-    "perspective correction": tab3,
+    "AI Background Removal": tab2,
+    "Manual Background Removal": tab3,
+    "Perspective Correction": tab4,
     }
 
     if current_tab in tab_functions:
