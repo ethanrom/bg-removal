@@ -2,3 +2,4 @@ rembg
 streamlit
 numpy
 streamlit_option_menu
+streamlit-drawable-canvas
