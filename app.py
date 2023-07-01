@@ -130,7 +130,7 @@ def tab3():
             image = Image.open(uploaded_file)
             max_image_size = 700
             if max(image.size) > max_image_size:
-                image.thumbnail((max_image_size, max_image_size), Image.ANTIALIAS)
+                image.thumbnail((max_image_size, max_image_size), Image.LANCZOS)  # Updated resampling filter
             st.image(image, caption="Original Image")
             image_width, image_height = image.size
 
@@ -171,7 +171,7 @@ def tab3():
                 transparent_bg_result = result_image.convert("RGBA")
                 file_path = "background_removed.png"
                 transparent_bg_result.save(file_path, format="PNG")
-                st.image(transparent_bg_result, caption="Background Removed Image")    
+                st.image(transparent_bg_result, caption="Background Removed Image")     
 
 
 def tab4():
