@@ -6,7 +6,6 @@ from markup import real_estate_app, real_estate_app_hf, sliders_intro, perspecti
 from perspective_correction import perspective_correction, perspective_correction2
 from streamlit_drawable_canvas import st_canvas
 import tempfile
-import os
 
 import numpy as np
 import cv2
@@ -127,15 +126,10 @@ def tab3():
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
     
     if uploaded_file is not None:
-        # Save the uploaded image temporarily
-        temp_image_path = "temp_image.png"
-        with open(temp_image_path, "wb") as f:
-            f.write(uploaded_file.getvalue())
 
         col1, col2 = st.columns([2,1])
         with col1:
-            # Load the saved image as the background image
-            image = Image.open(temp_image_path)
+            image = Image.open(uploaded_file)
             max_image_size = 700
             if max(image.size) > max_image_size:
                 image.thumbnail((max_image_size, max_image_size), Image.LANCZOS)  # Updated resampling filter
@@ -153,7 +147,7 @@ def tab3():
             canvas_result = st_canvas(
                 fill_color="rgba(255, 165, 0, 0.3)",
                 stroke_width=stroke_width,
-                background_image=Image.open('image.jpg'),
+                background_image=image,
                 update_streamlit=realtime_update,
                 height=image_height,
                 width=image_width,
@@ -179,10 +173,7 @@ def tab3():
                 transparent_bg_result = result_image.convert("RGBA")
                 file_path = "background_removed.png"
                 transparent_bg_result.save(file_path, format="PNG")
-                st.image(transparent_bg_result, caption="Background Removed Image")  
-
-        # Remove the temporary image file
-        os.remove(temp_image_path)   
+                st.image(transparent_bg_result, caption="Background Removed Image")   
 
 
 def tab4():
