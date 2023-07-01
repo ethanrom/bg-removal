@@ -155,7 +155,8 @@ def tab3():
             )
 
         if st.button("Remove Background"):
-            if canvas_result.json_data is not None:
+            st.subheader("This feature is broken in this hosting service, please DM for a private link")
+            """if canvas_result.json_data is not None:
                 points = []
                 for obj in canvas_result.json_data["objects"]:
                     if "type" in obj and obj["type"] == "circle":
@@ -171,7 +172,7 @@ def tab3():
                 transparent_bg_result = result_image.convert("RGBA")
                 file_path = "background_removed.png"
                 transparent_bg_result.save(file_path, format="PNG")
-                st.image(transparent_bg_result, caption="Background Removed Image")   
+                st.image(transparent_bg_result, caption="Background Removed Image")"""   
 
 
 def tab4():
