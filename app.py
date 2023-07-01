@@ -145,7 +145,7 @@ def tab3():
             st.subheader("Select Points on the Canvas")
             canvas_result = st_canvas(
                 fill_color="rgba(255, 165, 0, 0.3)",
-                stroke_width=stroke_width,
+                #stroke_width=stroke_width,
                 background_image=image,
                 update_streamlit=realtime_update,
                 height=image_height,
