@@ -153,7 +153,7 @@ def tab3():
             canvas_result = st_canvas(
                 fill_color="rgba(255, 165, 0, 0.3)",
                 stroke_width=stroke_width,
-                background_image=image,
+                background_image=Image.open('image.jpg'),
                 update_streamlit=realtime_update,
                 height=image_height,
                 width=image_width,
