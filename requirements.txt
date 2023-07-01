@@ -2,4 +2,4 @@ rembg
 streamlit
 numpy
 streamlit_option_menu
-streamlit-drawable-canvas
+streamlit-drawable-canvas = 0.8.0
