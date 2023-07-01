@@ -139,7 +139,6 @@ def tab3():
         with col2:
             drawing_mode = "point"
             stroke_width = st.slider("Stroke width: ", 1, 25, 3)
-            point_display_radius = st.slider("Point display radius: ", 1, 25, 3)
             realtime_update = st.checkbox("Update in realtime", True)
 
         with col1:
@@ -152,7 +151,6 @@ def tab3():
                 height=image_height,
                 width=image_width,
                 drawing_mode=drawing_mode,
-                point_display_radius=point_display_radius if drawing_mode == 'point' else 0,
                 key="canvas",
             )
 
