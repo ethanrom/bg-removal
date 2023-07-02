@@ -123,65 +123,8 @@ def remove_background(image, points):
     return result
 
 
+  
 def tab3():
-    model_file = 'bestslab-seg.onnx'
-    model_url = 'https://drive.google.com/uc?id=1---iqs2llLrgDbzr_S1nzkKUr3sJ_ru3'
-
-    if not os.path.exists(model_file):
-        gdown.download(model_url, model_file, quiet=False)
-    
-    model = YOLO(model_file)
-
-    st.header("Background Removal with instance Segmentaion")
-    st.markdown(segement_intro(), unsafe_allow_html=True)
-
-    uploaded_file = st.file_uploader('Choose an image', type=['jpg', 'jpeg', 'png'])
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-
-        col1, col2 = st.columns([2,1])
-        with col2:
-
-            iou_threshold = st.slider('IoU Threshold', min_value=0.0, max_value=1.0, value=0.7)
-            conf_threshold = st.slider('Confidence Threshold', min_value=0.0, max_value=1.0, value=0.65)
-            show_labels = st.checkbox('Show Labels', value=False)
-            show_conf = st.checkbox('Show Confidence Scores', value=False)
-            boxes = st.checkbox('Show Boxes', value=True)
-
-        with col1:
-            st.image(image, caption='Input Image', use_column_width=True)
-
-            if st.button('Apply and Predict'):
-
-                results = model(
-                    image_cv,
-                    iou=iou_threshold,
-                    conf=conf_threshold,
-                    show_labels=show_labels,
-                    show_conf=show_conf,
-                    boxes=boxes,
-                )
-
-                masks = results[0].masks
-                mask_image = np.zeros((image_cv.shape[0], image_cv.shape[1], 4), dtype=np.uint8)
-
-                annotated_frame = results[0].plot()
-                annotated_image = Image.fromarray(cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB))
-
-                for segment in masks.xy:
-                    segment = np.array(segment, dtype=np.int32)
-                    segment = segment.reshape((-1, 1, 2))
-                    cv2.fillPoly(mask_image, [segment], (255, 255, 255, 255))
-
-                alpha_channel = mask_image[:, :, 3]
-                image_rgba = np.concatenate((image_cv, np.expand_dims(alpha_channel, axis=2)), axis=2)
-                masked_image = image_rgba * (mask_image / 255)
-                masked_pil = Image.fromarray(masked_image.astype(np.uint8), 'RGBA')
-
-                st.image([annotated_image, masked_pil], caption=['Detections', 'Masked Image'], use_column_width=True)    
-
-def tab4():
     st.header("Manual Background Removal")
     st.markdown(manual_bg_intro(), unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
@@ -239,7 +182,7 @@ def tab4():
                 st.image(transparent_bg_result, caption="Background Removed Image")   """
 
 
-def tab5():
+def tab4():
     st.header("Image Perspective Correction")
     st.write("Upload a transparent PNG image which you have removed the background using the previous tab.")
     st.markdown(perspective_intro(),unsafe_allow_html=True)
@@ -285,7 +228,7 @@ def tab5():
                 
 def main():
     st.set_page_config(page_title="Background Removal Demo", page_icon=":memo:", layout="wide")
-    tabs = ["Intro", "AI Background Removal", "Background Removal with Segmentaion", "Manual Background Removal", "Perspective Correction"]
+    tabs = ["Intro", "AI Background Removal", "Manual Background Removal", "Perspective Correction"]
 
     with st.sidebar:
 
@@ -294,9 +237,8 @@ def main():
     tab_functions = {
     "Intro": tab1,
     "AI Background Removal": tab2,
-    "Background Removal with Segmentaion": tab3,
-    "Manual Background Removal": tab4,
-    "Perspective Correction": tab5,
+    "Manual Background Removal": tab3,
+    "Perspective Correction": tab4,
     }
 
     if current_tab in tab_functions:
