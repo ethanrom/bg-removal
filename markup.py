@@ -69,3 +69,10 @@ def manual_bg_intro():
     return """
     Click on the canvas and select four or more points, starting from any one corner of the slab and proceeding in order in any direction. The background will be removed using the selected points.
     """
+
+def segement_intro():
+    return """
+    Uses a custom trained model on multiple variations of the provided images. Accucary will increase if more images are provided and model is fine tuned. 
+    fine tuning the model for new images is a straight forward process, necessary documentaion and guidlines will be provided.
+    Adjust the confidence score and IoU sliders to refine the selected area.
+    """
